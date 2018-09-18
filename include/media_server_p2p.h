@@ -21,8 +21,8 @@
 #define SIZE_WAKEUP_KEY 	17	// WakeUp Key Size
 
 #define MAX_CLIENT_NUM 		16  //最大能同时接入的客户端数量
-
-//#define P2P_SUPORT_WAKEUP   //放在makefile中定义了
+#define P2P_TSK_PRIO        4	//P2P线程的创建优先级（LiteOS下）
+//#define P2P_SUPORT_WAKEUP     //放在makefile中定义了
 
 #ifndef P2P_SUPORT_WAKEUP
 //standard p2p 参数（不支持唤醒）
@@ -101,6 +101,7 @@ int p2p_close(void *handle);
 
 
 #endif
+
 
 
 

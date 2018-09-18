@@ -34,6 +34,7 @@ enum med_ser_error_code
 
 };
 
+
 enum med_ser_alarm_file_type
 {
 	JPEG_file = 0,
@@ -205,3 +206,4 @@ int media_server_if_upgrading();
 
 #endif
  
+

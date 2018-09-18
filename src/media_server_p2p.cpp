@@ -33,6 +33,10 @@
 #include "media_server_p2p.h"
 #include "media_server_interface.h"
 
+#ifdef LiteOS
+#include "los_task.h"
+#endif
+
 
 #define 	PKT_TEST
 
@@ -43,7 +47,11 @@ typedef		pthread_mutex_t  		my_Thread_mutex_t;
 #define		my_Mutex_UnLock(mutex)	pthread_mutex_unlock(&mutex)
 #define		my_Mutex_Close(mutex) 	pthread_mutex_destroy(&mutex)
 #define		my_SocketClose(skt)		close(skt)
-#define		my_Thread_exit(a)		pthread_exit(a) 		
+
+#if defined(LINUX)
+#define		my_Thread_exit(a)		pthread_exit(a) 
+#endif
+
 
 typedef uintptr_t UINTp;
 
@@ -404,12 +412,32 @@ void CreateThread_LoginStatus_Check()
 {
 	gThread_Exit = 0;
 
+#if defined(LINUX)
 	pthread_t threadID_LoginStatus_Check;
 	int err = pthread_create(&threadID_LoginStatus_Check, NULL, &Thread_LoginStatus_Check, NULL);
 	if (0 != err) 
 	{
 		error("create Thread LoginStatus_Check failed");
-	}	
+	}
+	
+#elif defined(LiteOS)
+	TSK_INIT_PARAM_S stInitParam;
+	stInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)Thread_LoginStatus_Check;
+	stInitParam.usTaskPrio = P2P_TSK_PRIO;//优先级为多少待定，(0-31)，最高优先级为0，最低优先级为31
+	stInitParam.pcName = "Thread_LoginStatus_Check";
+	//stInitParam.auwArgs[0] = (unsigned int)P2P_handle;
+	stInitParam.uwStackSize = 0x400;
+	stInitParam.uwResved = LOS_TASK_STATUS_DETACHED;
+
+	unsigned int TskID;
+	unsigned int uwRet = LOS_TaskCreate(&TskID, &stInitParam);
+	if (uwRet != LOS_OK)
+	{
+		LOS_TaskUnlock();
+		printf("Thread_LoginStatus_Check create Failed!\r\n");
+		return LOS_NOK;
+	}
+#endif
 
 }
 
@@ -547,7 +575,7 @@ int RW_Test()
 	memset(g_RW_Test_Info, 0, sizeof(g_RW_Test_Info));
 	for (INT32 i = 0; i < TEST_NUMBER_OF_CHANNEL; i++)
 	{
-
+#if defined(LINUX)
 		if (0 != pthread_create(&ThreadWriteID[i], NULL, &ThreadWrite, (void *)&i)) 
 		{
 			error("create ThreadWrite failed");
@@ -556,17 +584,54 @@ int RW_Test()
 		{
 			error("create ThreadRead failed");
 		}			
+#elif defined(LiteOS)
+		TSK_INIT_PARAM_S stInitParam;
+		stInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)ThreadWrite;
+		stInitParam.usTaskPrio = P2P_TSK_PRIO;//优先级为多少待定，(0-31)，最高优先级为0，最低优先级为31
+		stInitParam.pcName = "ThreadWrite";
+		stInitParam.auwArgs[0] = (unsigned int)&i;
+		stInitParam.uwStackSize = 0x400;
+		stInitParam.uwResved = LOS_TASK_STATUS_DETACHED;
+	
+		unsigned int TskID;
+		unsigned int uwRet = LOS_TaskCreate(&TskID, &stInitParam);
+		if (uwRet != LOS_OK)
+		{
+			LOS_TaskUnlock();
+			printf("ThreadWrite create Failed!\r\n");
+			return LOS_NOK;
+		}
+
+		stInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)ThreadRead;
+		stInitParam.usTaskPrio = P2P_TSK_PRIO;//优先级为多少待定，(0-31)，最高优先级为0，最低优先级为31
+		stInitParam.pcName = "ThreadRead";
+		stInitParam.auwArgs[0] = (unsigned int)&i;
+		stInitParam.uwStackSize = 0x400;
+		stInitParam.uwResved = LOS_TASK_STATUS_DETACHED;
+	
+		
+		uwRet = LOS_TaskCreate(&TskID, &stInitParam);
+		if (uwRet != LOS_OK)
+		{
+			LOS_TaskUnlock();
+			printf("ThreadRead create Failed!\r\n");
+			return LOS_NOK;
+		}
+
+#endif
 
 		mSleep(10);
 	}
-	
+
+#if defined(LINUX)	
 	for (INT32 i = 0; i < TEST_NUMBER_OF_CHANNEL; i++)
 	{	
-
+	
 		pthread_join(ThreadReadID[i], NULL);
 		pthread_join(ThreadWriteID[i], NULL);
 
 	}
+#endif
 	printf("\n");
 	
 	// show transmission information for each channel
@@ -1252,6 +1317,7 @@ int p2p_listen(p2p_handle_t *P2P_handle)
 			{
 				st_debug("\nCall_P2P_Listen success! gSessionID = %d\n",SessionID);
 				P2P_handle->Session_num ++;
+				P2P_status = connected;
 				return SessionID;
 			}
 			else
@@ -1288,14 +1354,33 @@ int p2p_listen(p2p_handle_t *P2P_handle)
 
 int P2P_client_task_create(p2p_handle_t *P2P_handle)
 {
+#if defined(LINUX)
 	pthread_t taskid;
-
+	//LiteOS系统下创建线程有特殊的创建方式。
 	int ret = pthread_create(&taskid,NULL,P2P_client_task_func,(void*)P2P_handle);  
     if(ret != 0)  
     {  
         printf("Create pthread error!\n");  
     	return -1;  
-    } 
+    }
+#elif defined(LiteOS)
+	TSK_INIT_PARAM_S stInitParam;
+	stInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)P2P_client_task_func;
+	stInitParam.usTaskPrio = P2P_TSK_PRIO;//优先级为多少待定，(0-31)，最高优先级为0，最低优先级为31
+	stInitParam.pcName = "P2P_client_task_func";
+	stInitParam.auwArgs[0] = (unsigned int)P2P_handle;
+	stInitParam.uwStackSize = 0x400;
+	stInitParam.uwResved = LOS_TASK_STATUS_DETACHED;
+
+	unsigned int TskID;
+	unsigned int uwRet = LOS_TaskCreate(&TskID, &stInitParam);
+	if (uwRet != LOS_OK)
+	{
+		LOS_TaskUnlock();
+		printf("P2P_client_task_func create Failed!\r\n");
+		return LOS_NOK;
+	}
+#endif
 	
 	return 0;
 }
@@ -1360,7 +1445,12 @@ void * P2P_client_task_func(void*P2P_handle)
 	//操作公共资源时注意互斥情况
 	handle->Session_num --;
 	st_debug("--PPCS_Close(%d)\n", handle->SessionID);
+	
+	#if defined(LINUX)
 	pthread_exit(0);
+	#endif
+	
+
 	
 	return NULL;
 }
