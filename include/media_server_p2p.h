@@ -41,7 +41,6 @@
 #define IP_LENGTH			16
 #define TCP_PORT			12306
 #define UDP_PORT			12305
-//char g_WakeUpServerIP[SERVER_NUM][IP_LENGTH] = {"112.74.108.149","112.74.108.149","112.74.108.149"};
 #define SERVER_IP1			"112.74.108.149"
 #define SERVER_IP2			"112.74.108.149"
 #define SERVER_IP3			"112.74.108.149"
@@ -70,6 +69,8 @@ typedef struct _p2p_handle_t
 
 extern  unsigned long getTickCount(void);
 
+/*以下函数为基于善云SDK ListenTester.cpp文件进行修改后封装的函数*/
+
 //init  初始化配置参数 + P2P初始化。
 int p2p_init(p2p_handle_t *P2P_handle);
 
@@ -86,6 +87,7 @@ int p2p_listen(p2p_handle_t *P2P_handle);
 //客户端任务入口函数（每个客户端接入。都会创建一个线程，专程处理该客户端的业务）。
 int P2P_client_task_create(p2p_handle_t *P2P_handle);
 void * P2P_client_task_func(void*P2P_handle);
+
 //recv
 int p2p_recv(void *handle,void*buf,int length);
 
@@ -99,6 +101,7 @@ int p2p_close(void *handle);
 
 
 #endif
+
 
 
 

@@ -1,7 +1,7 @@
 /*********************************************************************************
   *FileName: media_server_p2p.cpp
   *Create Date: 2018/09/06
-  *Description: 本文件是p2p函数定义文件，基于shangyun SDK进行封装。 
+  *Description: 本文件是p2p函数定义文件，基于shangyun demo的ListenTester.cpp进行修改。 
   *Others:  
   *History:  
 **********************************************************************************/
@@ -760,10 +760,20 @@ int Call_SendCMD(const int skt, const char *CMD, const unsigned short SizeOfCMD,
 	return size;
 }
 
-/*
-成功：返回大于等于0的gSessionID
-失败：返回小于0的错误码
-*/
+
+/***********************************************************************************************
+*函数名 ：	   Call_P2P_Listen 
+*功能描述 ：监听等待客户端连接。
+*			此函数是个阻塞的函数，正常返回是唤醒服务器唤醒或者超时，此外除非异常情况发生
+*			listen超时时间：10min
+*参数 ： 	   Did:设备id（尚云定义的，非本公司设备id，属于P2P初始化参数）
+*		   APILicense：连接密匙（尚云提供）
+*返回值 ：
+*		成功：>= 0的 SessionID
+*		失败：<     0的值
+*	
+***********************************************************************************************/
+
 int Call_P2P_Listen(const char *Did, const char *APILicense)
 {
 
@@ -771,7 +781,6 @@ int Call_P2P_Listen(const char *Did, const char *APILicense)
 
 	st_info("PPCS_Listen('%s', 600, 0, 1, '%s')...\n", DID, APILicense);
 	my_GetCurrentTime(&TimeBegin);	
-	//gSessionID = PPCS_Listen(Did, 600, 0, 1, APILicense);
 	gSessionID = PPCS_Listen(Did, 600, 0, 1, APILicense);
 	my_GetCurrentTime(&TimeEnd);
 	
@@ -805,7 +814,13 @@ int Call_P2P_Listen(const char *Did, const char *APILicense)
 }
 
 
- //init
+ /***********************************************************************************************
+ *函数名 ： 	p2p_init
+ *功能描述 ：初始化P2P参数
+ *参数 ： 		P2P_handle
+ *返回值 ： 	成功：0 失败：-1
+ ***********************************************************************************************/
+
 int p2p_init(p2p_handle_t *P2P_handle )
 {
 	if(NULL == P2P_handle)
@@ -848,7 +863,7 @@ int p2p_init(p2p_handle_t *P2P_handle )
 	//参数合法性检查
 #ifdef P2P_SUPORT_WAKEUP
 	if(P2P_handle->WakeupKey) //支持唤醒服务器唤醒
-	{
+	{ 
 	
 		int server_num = 0;
 		int ip_string  = 0;	
@@ -941,11 +956,12 @@ int p2p_init(p2p_handle_t *P2P_handle )
 }
 
 
-//connect
-/*
-	成功：return 0;
-	失败：return -1;
-*/
+/***********************************************************************************************
+*函数名 ：	   p2p_conect
+*功能描述 ：网络侦测 + 连接唤醒服务器
+*参数 ： 	   P2P_handle
+*返回值 ：	   成功：0 失败：-1
+***********************************************************************************************/
 st_Time_Info TimeBegin;				//与唤醒服务器建立连接的时间点
 st_Time_Info TimeEnd;				//接收到唤醒服务器唤醒包的时间点
 int p2p_conect(p2p_handle_t *P2P_handle)
@@ -988,7 +1004,7 @@ int p2p_conect(p2p_handle_t *P2P_handle)
 		char dest[30]={0};
 		
 		int size_W = 0;
-//		int size_R = 0;
+		//int size_R = 0;
 
 		if(P2P_handle->skt < 0)
 		{
@@ -1057,15 +1073,20 @@ int p2p_conect(p2p_handle_t *P2P_handle)
 
 }
 
-/*
-功能：进入睡眠状态，等待唤醒。
-	此函数是个阻塞的函数，正常返回是唤醒服务器唤醒，此外除非异常情况发生
-	成功：返回：
-		 0: 唤醒成功
-		-1：等待出错
-		-2：当前参数不支持唤醒
-		-3：还有客户端连接，不能进入睡眠状态
-*/
+
+/***********************************************************************************************
+*函数名 ：	   P2P_wait_for_wakeup
+*功能描述 ：进入睡眠状态，等待唤醒。
+*			此函数是个阻塞的函数，正常返回是唤醒服务器唤醒或者select超时，此外是异常情况发生
+*参数 ： 	   P2P_handle
+*返回值 ：	
+*		成功：
+*		 0: 唤醒成功
+*		失败：
+*		-1：等待出错
+*		-2：当前参数不支持唤醒
+*		-3：还有客户端连接，不能进入睡眠状态
+***********************************************************************************************/
 int P2P_wait_for_wakeup(p2p_handle_t *P2P_handle)
 {
 
@@ -1096,7 +1117,6 @@ int P2P_wait_for_wakeup(p2p_handle_t *P2P_handle)
 		}
 
 	}
-	
 	
 	setbuf(stdout, NULL);
 	gThread_Exit = 1; // Exit the LoginStatus_Check thread
@@ -1202,11 +1222,18 @@ int P2P_wait_for_wakeup(p2p_handle_t *P2P_handle)
 return 0;
 }
 
-//listen
-/*
-成功：返回客户端会话的 SessionID （SessionID >= 0）
-失败：返回负值
-*/
+
+/***********************************************************************************************
+*函数名 ：	   p2p_listen
+*功能描述 ：监听等待客户端连接。
+*			此函数是个阻塞的函数，正常返回是唤醒服务器唤醒或者超时，此外除非异常情况发生
+*			listen超时时间：10min
+*参数 ： 	   P2P_handle
+*返回值 ：	
+*		成功：>= 0的 SessionID
+*		失败：<     0的值
+*	
+***********************************************************************************************/
 int p2p_listen(p2p_handle_t *P2P_handle)
 {
 	if( P2P_status != sleeping)
@@ -1220,7 +1247,7 @@ int p2p_listen(p2p_handle_t *P2P_handle)
 		{
 			
 			
-			int SessionID = Call_P2P_Listen(DID, P2P_handle->APILicense);//阻塞
+			int SessionID = Call_P2P_Listen(P2P_handle->Did , P2P_handle->APILicense);//阻塞
 			if(SessionID >= 0)//listen success
 			{
 				st_debug("\nCall_P2P_Listen success! gSessionID = %d\n",SessionID);
@@ -1249,6 +1276,16 @@ int p2p_listen(p2p_handle_t *P2P_handle)
 			
 }
 
+/***********************************************************************************************
+*函数名 ：	   P2P_client_task_create
+*功能描述 ：创建专门的task线程去和客户端交互，针对接入的客户端。
+*参数 ： 	   P2P_handle
+*返回值 ：	
+*		成功： 0
+*		失败：-1
+*	
+***********************************************************************************************/
+
 int P2P_client_task_create(p2p_handle_t *P2P_handle)
 {
 	pthread_t taskid;
@@ -1263,7 +1300,14 @@ int P2P_client_task_create(p2p_handle_t *P2P_handle)
 	return 0;
 }
 
-
+/***********************************************************************************************
+*函数名 ：	   P2P_client_task_func
+*功能描述 ：task线程的线程响应函数。
+*参数 ： 	   P2P_handle
+*返回值 ：void*	
+*	
+*	
+***********************************************************************************************/
 void * P2P_client_task_func(void*P2P_handle)
 {
 	// Read Mode from Client
