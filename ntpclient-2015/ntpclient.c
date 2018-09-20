@@ -618,7 +618,8 @@ void ntp_sync_time(void)
 	(ntpc.set_clock)++;
 	ntpc.probe_count = 1;
 	//hostname = "time.nist.gov"; //英特尔的同步时间网站,连接不上
-	hostname = "202.108.6.95";
+	//hostname = "202.108.6.95"; //这个是会对时到+8区的北京时间
+	hostname ="pool.ntp.org";
 	
 	if (ntpc.set_clock && !ntpc.live && !ntpc.goodness && !ntpc.probe_count) {
 		ntpc.probe_count = 1;
@@ -781,6 +782,7 @@ int main(int argc, char *argv[])
 }
 
 #endif
+
 
 
 
