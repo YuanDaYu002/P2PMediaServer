@@ -28,6 +28,7 @@ LDFLAG = -O2 -g -Wall -DLINUX -lpthread  -lstdc++
 LDFLAG+= -lPPCS_API -lntpclient
 LDFLAG+= -DLINUX -DDEBUG
 #LDFLAG+= -DP2P_SUPORT_WAKEUP
+LDFLAG+= -DENABLE_NTP_CLIENT_DEBUG
 
 ###Include################################################
 INCLUDE =-I $(shangyun_SDK_PATH)/Include/PPCS 
@@ -35,7 +36,7 @@ INCLUDE+=-I $(MY_PATH)/include
 
 
 ###Lib#####################################################
-#换到板子上边要改变库，编译工具不一样
+#换到板子上边要改变尚云的库，编译工具不一样
 LIB =-L $(shangyun_SDK_PATH)/Lib/Linux/x64
 LIB+=-L $(MY_PATH)/lib
 

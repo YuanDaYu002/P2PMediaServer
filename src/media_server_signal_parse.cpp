@@ -110,7 +110,12 @@ int cmd_set_audio_vol(void*data,int length)
 	return media_ser_success;
 }
 
-
+//设置时区(校时)命令
+int cmd_set_time_zone(void*data,int length)
+{
+	plog("cmd_set_time_zone sucess!\n");
+	return media_ser_success;
+}
 
 /*
 	传入接收到的信令数据，该函数解析接收到客户端发送的信令，交给响应函数处理
@@ -205,7 +210,9 @@ int med_ser_signal_parse(void*data,int length)
 				/*响应函数*/
 			cmd_set_audio_vol(data, length);
 			break;
-				
+		case CMD_SET_TIME_ZONE:			//设置时区(校时)命令
+			cmd_set_time_zone(data,length);
+			break;
 		default:
 				/*响应函数*/
 			plog("default command!\n");

@@ -8,6 +8,8 @@
 #ifndef MEDIA_SERVER_SIGNAL_PARSE_H
 #define MEDIA_SERVER_SIGNAL_PARSE_H
 
+
+
 int med_ser_signal_parse(void*data,int length);
 
 int cmd_Get_Mac(void*data,int length);						//获取设备MAC地址
@@ -25,7 +27,9 @@ int cmd_request_login(void*data,int length); 				// 登陆请求命令
 int cmd_set_audio_vol(void*data,int length); 				//设置AUdio音量参数
 
 
+
 #endif
+
 
 
 

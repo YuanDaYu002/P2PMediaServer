@@ -47,8 +47,11 @@
 #include <sys/time.h>
 #endif
 
+#include <pthread.h>
 #include "ntpclient.h"
 #include "phaselock.h"
+
+
 
 /* Default to the RFC-4330 specified value */
 #ifndef MIN_INTERVAL
@@ -593,10 +596,27 @@ static void usage(char *argv0)
 }
 
 #if 1
-/*NTP 校时函数*/
-
-void ntp_sync_time(void) 
+/*********************************************************
+NTP 校时函数,当NTP服务器连接不上或者网络不通的情况下，调用该函数的线程
+会进入休眠状态，并不断等待接收服务器消息，一直等到校时成功。
+*********************************************************/
+	
+/*******************************************************************
+*函数名 ：	   Ntp_sync_time_func
+*功能描述 ：NTP对时函数
+*参数 ： 		arg
+*返回值 ：	   成功：0 失败：NULL
+注意：
+	1.校时成功后调用该函数的线程会自动退出，如果NTP服务器没有反应，
+	  该函数会陷入select等待的状态，直到收到服务器的回应为止
+********************************************************************/
+//void* main()
+void* ntp_sync_time_func(void*arg) 
 {
+
+	pthread_detach(pthread_self());	
+	printf("%s tid:[%d]\n", __FUNCTION__,(int)pthread_self());
+	
 	int usd;  /* socket */
 	int c;
 	/* These parameters are settable from the command line
@@ -611,15 +631,11 @@ void ntp_sync_time(void)
 	ntpc.cycle_time=600;          /* seconds */
 	ntpc.goodness=0;
 	ntpc.cross_check=1;
-    //hostname = "210.72.145.44"; //中国国家授时中心
-    //hostname = "ntp.sjtu.edu.cn"; //上海交通大学NTP服务器,202.120.2.101
- 
  
 	(ntpc.set_clock)++;
 	ntpc.probe_count = 1;
-	//hostname = "time.nist.gov"; //英特尔的同步时间网站,连接不上
-	//hostname = "202.108.6.95"; //这个是会对时到+8区的北京时间
 	hostname ="pool.ntp.org";
+	//hostname ="time.nist.gov";
 	
 	if (ntpc.set_clock && !ntpc.live && !ntpc.goodness && !ntpc.probe_count) {
 		ntpc.probe_count = 1;
@@ -650,14 +666,18 @@ void ntp_sync_time(void)
 	{
 		printf ("ntp socket error!\n");
 	}
- 
+ 	//printf("into setup_receive\n");
 	setup_receive(usd, INADDR_ANY, udp_local_port);
- 
+ 	//printf("into setup_transmit\n");
 	setup_transmit(usd, hostname, NTP_PORT, &ntpc);
- 
+ 	//printf("into primary_loop\n");
 	primary_loop(usd, &ntpc);
  
 	close(usd);
+	printf("NTP sync time success! thread ntp_sync_time_func exit\n");
+	pthread_exit(NULL);
+	
+	return NULL;
 }
 
 
@@ -782,6 +802,8 @@ int main(int argc, char *argv[])
 }
 
 #endif
+
+
 
 
 
