@@ -8,6 +8,10 @@
 
 #ifndef MEDIA_SERVER_PLOG_H
 #define MEDIA_SERVER_PLOG_H
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 #include <syslog.h>
 #include <stdio.h>
@@ -35,7 +39,11 @@ const char* get_src_name(const char* fpath);
 #define plog_str(s) plog( # s " -> %s\n", s)
 #define plog_int(v) plog( # v" -> %d\n", v)
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* end of include guard: LOG_H */
+
 
 
 

@@ -28,6 +28,7 @@ LDFLAG = -O2 -g -Wall -DLINUX -lpthread  -lstdc++
 LDFLAG+= -lPPCS_API -lntpclient
 LDFLAG+= -DLINUX -DDEBUG
 #LDFLAG+= -DP2P_SUPORT_WAKEUP
+LDFLAG+= -DENABLE_NTP_CLIENT_DEBUG
 
 ###Include################################################
 INCLUDE =-I $(shangyun_SDK_PATH)/Include/PPCS 

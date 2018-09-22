@@ -273,7 +273,7 @@ typedef struct
 }STRUCT_REQ_LOGIN_ECHO ;
 
 //------------------------------------------------------------------------
-#define CMD_SET_AUDIO_VOL	0x1026		//设置AUdio音量参数
+#define CMD_SET_AUDIO_VOL	0x1026			//设置AUdio音量参数
 typedef struct
 {
 	DEF_CMD_HEADER ;
@@ -289,10 +289,24 @@ typedef struct
 	int					echo ;				//-1：失败，0：成功
 }STRUCT_SET_AUDIO_VOL_ECHO ;
 
+//------------------------------------------------------------------------
+#define CMD_SET_TIME_ZONE	0x1027			//设置时区(校时)命令
+typedef struct
+{
+	int  ntp;			 	//NTP对时开关
+	int  timezone;     		//跟UTC 秒数的差距,有正负,范围 [-12*3600, 13*3600]
+	int  tzindex;        	//当前时区在时区表(保存所有时区)的索引[1-91], 0代表自动获取时区
+	int  daylight;			//此时区是否启用夏令时
+	char reserved[12];
+}STRUCT_SET_TIME_ZONE_REQUEST;
+
+
+
 #pragma pack()
 
 #ifdef __cplusplus
 }
 #endif
 #endif
+
 

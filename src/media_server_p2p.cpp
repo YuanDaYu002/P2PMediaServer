@@ -923,7 +923,6 @@ int p2p_init(p2p_handle_t *P2P_handle )
 	P2P_handle->Session_num = 0;
 	P2P_status = wakeup;
 	
-	//int useless_ip = 0;	 //无效的ip数
 	// 1. get P2P API Version
 	UINT32 APIVersion = PPCS_GetAPIVersion();
 	st_info("P2P API Version: %d.%d.%d.%d\n",
@@ -933,6 +932,7 @@ int p2p_init(p2p_handle_t *P2P_handle )
 							(APIVersion & 0x000000FF)>>0);
 	//参数合法性检查
 #ifdef P2P_SUPORT_WAKEUP
+	int useless_ip = 0;  //无效的ip数
 	if(P2P_handle->WakeupKey) //支持唤醒服务器唤醒
 	{ 
 	
@@ -1310,7 +1310,7 @@ int p2p_listen(p2p_handle_t *P2P_handle)
 	{
 		if (0 == gThread_bRunning) 
 		{
-			plog("into CreateThread_LoginStatus_Check\n");
+			//plog("into CreateThread_LoginStatus_Check\n");
 			CreateThread_LoginStatus_Check();
 		}
 		if(P2P_handle->Session_num < MAX_CLIENT_NUM)//同时登录的客户端数量不能超过限制

@@ -10,11 +10,14 @@
 
 
 //ntp对时函数，位于静态库当中（libntpclient.a）
-//extern "C" int ntp_sync_time(int argc, char *argv[]);
-extern "C" void ntp_sync_time(void);
+extern "C" void *ntp_sync_time_func(void*arg);
+
+void* Idle(void*arg);
+int Idle_thread_create(void);
 
 
 #endif
+
 
 
 
