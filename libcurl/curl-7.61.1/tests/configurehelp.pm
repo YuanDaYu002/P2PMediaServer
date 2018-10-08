@@ -18,6 +18,6 @@ use vars qw(
     $Cpreprocessor
     );
 
-$Cpreprocessor = 'gcc -E';
+$Cpreprocessor = 'arm-himix100-linux-gcc -E';
 
 1;

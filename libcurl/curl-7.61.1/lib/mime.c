@@ -1345,8 +1345,10 @@ CURLcode curl_mime_data(curl_mimepart *part,
 /* Set mime part content from named local file. */
 CURLcode curl_mime_filedata(curl_mimepart *part, const char *filename)
 {
-  CURLcode result = CURLE_OK;
 
+  CURLcode result = CURLE_OK;
+printf("%s  %s  %d  not support curl_mime_filedata !!",__FILE__,__func__,__LINE__);
+#if 0
   if(!part)
     return CURLE_BAD_FUNCTION_ARGUMENT;
 
@@ -1388,6 +1390,7 @@ CURLcode curl_mime_filedata(curl_mimepart *part, const char *filename)
       free(base);
     }
   }
+#endif
   return result;
 }
 

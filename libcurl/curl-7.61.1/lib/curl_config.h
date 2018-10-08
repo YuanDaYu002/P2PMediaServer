@@ -29,7 +29,7 @@
 /* #undef CURL_DISABLE_FILE */
 
 /* to disable FTP */
-/* #undef CURL_DISABLE_FTP */
+#define CURL_DISABLE_FTP 1
 
 /* to disable Gopher */
 /* #undef CURL_DISABLE_GOPHER */
@@ -38,7 +38,7 @@
 /* #undef CURL_DISABLE_HTTP */
 
 /* to disable IMAP */
-/* #undef CURL_DISABLE_IMAP */
+#define CURL_DISABLE_IMAP 1
 
 /* to disable LDAP */
 #define CURL_DISABLE_LDAP 1
@@ -50,25 +50,25 @@
 /* #undef CURL_DISABLE_LIBCURL_OPTION */
 
 /* to disable POP3 */
-/* #undef CURL_DISABLE_POP3 */
+#define CURL_DISABLE_POP3 1
 
 /* to disable proxies */
 /* #undef CURL_DISABLE_PROXY */
 
 /* to disable RTSP */
-/* #undef CURL_DISABLE_RTSP */
+#define CURL_DISABLE_RTSP 1
 
 /* to disable SMB/CIFS */
 /* #undef CURL_DISABLE_SMB */
 
 /* to disable SMTP */
-/* #undef CURL_DISABLE_SMTP */
+#define CURL_DISABLE_SMTP 1
 
 /* to disable TELNET */
-/* #undef CURL_DISABLE_TELNET */
+#define CURL_DISABLE_TELNET 1
 
 /* to disable TFTP */
-/* #undef CURL_DISABLE_TFTP */
+#define CURL_DISABLE_TFTP 1
 
 /* to disable TLS-SRP authentication */
 /* #undef CURL_DISABLE_TLS_SRP */
@@ -92,10 +92,10 @@
 /* #undef EGD_SOCKET */
 
 /* Define if you want to enable IPv6 support */
-#define ENABLE_IPV6 1
+/* #undef ENABLE_IPV6 */
 
 /* Define to the type of arg 2 for gethostname. */
-#define GETHOSTNAME_TYPE_ARG2 size_t
+#define GETHOSTNAME_TYPE_ARG2 unsigned int
 
 /* Specifies the number of arguments to getservbyport_r */
 #define GETSERVBYPORT_R_ARGS 6
@@ -334,10 +334,10 @@
 #define HAVE_IF_NAMETOINDEX 1
 
 /* Define to 1 if you have the inet_ntoa_r function. */
-/* #undef HAVE_INET_NTOA_R */
+#define HAVE_INET_NTOA_R 1
 
 /* inet_ntoa_r() takes 2 args */
-/* #undef HAVE_INET_NTOA_R_2 */
+#define HAVE_INET_NTOA_R_2 1
 
 /* inet_ntoa_r() takes 3 args */
 /* #undef HAVE_INET_NTOA_R_3 */
@@ -389,7 +389,7 @@
 /* #undef HAVE_LDAP_INIT_FD */
 
 /* Use LDAPS implementation */
-#define HAVE_LDAP_SSL 1
+/* #undef HAVE_LDAP_SSL */
 
 /* Define to 1 if you have the ldap_ssl.h header file. */
 /* #undef HAVE_LDAP_SSL_H */
@@ -428,7 +428,7 @@
 /* #undef HAVE_LIBSSL */
 
 /* if zlib is available */
-#define HAVE_LIBZ 1
+/* #undef HAVE_LIBZ */
 
 /* Define to 1 if you have the <linux/tcp.h> header file. */
 #define HAVE_LINUX_TCP_H 1
@@ -588,7 +588,7 @@
 /* #undef HAVE_SIG_ATOMIC_T_VOLATILE */
 
 /* Define to 1 if struct sockaddr_in6 has the sin6_scope_id member */
-#define HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID 1
+/* #undef HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID */
 
 /* Define to 1 if you have the socket function. */
 #define HAVE_SOCKET 1
@@ -786,7 +786,7 @@
 /* #undef HAVE_X509_H */
 
 /* if you have the zlib.h header file */
-#define HAVE_ZLIB_H 1
+/* #undef HAVE_ZLIB_H */
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #define LT_OBJDIR ".libs/"
@@ -813,7 +813,7 @@
 /* #undef NTLM_WB_FILE */
 
 /* cpu-machine-OS */
-#define OS "x86_64-pc-linux-gnu"
+#define OS "arm-unknown-linux-gnu"
 
 /* Name of package */
 #define PACKAGE "curl"
@@ -852,7 +852,7 @@
 #define RECV_TYPE_ARG4 int
 
 /* Define to the function return type for recv. */
-#define RECV_TYPE_RETV ssize_t
+#define RECV_TYPE_RETV int
 
 /* Define as the return type of signal handlers (`int' or `void'). */
 #define RETSIGTYPE void
@@ -888,7 +888,7 @@
 #define SEND_TYPE_ARG4 int
 
 /* Define to the function return type for send. */
-#define SEND_TYPE_RETV ssize_t
+#define SEND_TYPE_RETV int
 
 /* The number of bytes in type curl_off_t */
 #define SIZEOF_CURL_OFF_T 8
@@ -897,22 +897,22 @@
 #define SIZEOF_INT 4
 
 /* The number of bytes in type long */
-#define SIZEOF_LONG 8
+#define SIZEOF_LONG 4
 
 /* The number of bytes in type long long */
 /* #undef SIZEOF_LONG_LONG */
 
 /* The number of bytes in type off_t */
-#define SIZEOF_OFF_T 8
+#define SIZEOF_OFF_T 4
 
 /* The number of bytes in type short */
 #define SIZEOF_SHORT 2
 
 /* The number of bytes in type size_t */
-#define SIZEOF_SIZE_T 8
+#define SIZEOF_SIZE_T 4
 
 /* The number of bytes in type time_t */
-#define SIZEOF_TIME_T 8
+#define SIZEOF_TIME_T 4
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1

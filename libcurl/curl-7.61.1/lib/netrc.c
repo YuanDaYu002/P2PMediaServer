@@ -22,6 +22,9 @@
 
 #include "curl_setup.h"
 
+#include <sys/types.h>
+#include <unistd.h>
+
 #ifdef HAVE_PWD_H
 #include <pwd.h>
 #endif
@@ -76,15 +79,21 @@ int Curl_parsenetrc(const char *host,
 #if defined(HAVE_GETPWUID_R) && defined(HAVE_GETEUID)
     }
     else {
+	printf("%s %s %d liteOS not support getpwuid_r !\n",__FILE__,__func__,__LINE__ );
+     #if 0
+
       struct passwd pw, *pw_res;
       char pwbuf[1024];
       if(!getpwuid_r(geteuid(), &pw, pwbuf, sizeof(pwbuf), &pw_res)
-         && pw_res) {
+         && pw_res)
+      {
         home = strdup(pw.pw_dir);
         if(!home)
           return CURLE_OUT_OF_MEMORY;
         home_alloc = TRUE;
       }
+	#endif
+
 #elif defined(HAVE_GETPWUID) && defined(HAVE_GETEUID)
     }
     else {

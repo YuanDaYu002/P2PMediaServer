@@ -1,9 +1,9 @@
 # Directories...
-$prefix=/usr/local
+$prefix=/home/yuanda.yu/svn_debug/lite-ipc/trunk/retarded/app/libcurl/curl_lib
 $exec_prefix=${prefix}
 $bindir=${exec_prefix}/bin
 $confdir=${prefix}/etc
-$docdir=/usr/local/doc
+$docdir=/home/yuanda.yu/svn_debug/lite-ipc/trunk/retarded/app/libcurl/curl_lib/doc
 $mandir=${datarootdir}/man
 $libdir=${exec_prefix}/lib
 $srcdir=../..
