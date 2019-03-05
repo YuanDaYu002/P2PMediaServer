@@ -90,6 +90,7 @@ void url_rewind(URL_FILE *file);
 /* we use a global one for convenience */
 static CURLM *multi_handle;
 
+
 /* curl calls this routine to get more data */
 static size_t write_callback(char *buffer,
                              size_t size,
@@ -124,6 +125,7 @@ static size_t write_callback(char *buffer,
   return size;
 }
 
+#if 1
 /* use to attempt to fill the read buffer up to requested number of bytes */
 static int fill_buffer(URL_FILE *file, size_t want)
 {
@@ -207,6 +209,8 @@ static int fill_buffer(URL_FILE *file, size_t want)
   return 1;
 }
 
+
+
 /* use to remove want bytes from the front of a files buffer */
 static int use_buffer(URL_FILE *file, size_t want)
 {
@@ -278,7 +282,9 @@ URL_FILE *url_fopen(const char *url, const char *operation)
   }
   return file;
 }
+#endif
 
+#if 1
 int url_fclose(URL_FILE *file)
 {
   int ret = 0;/* default is good return */
@@ -307,6 +313,8 @@ int url_fclose(URL_FILE *file)
 
   return ret;
 }
+#endif
+
 
 int url_feof(URL_FILE *file)
 {
@@ -418,6 +426,7 @@ char *url_fgets(char *ptr, size_t size, URL_FILE *file)
   return ptr;/*success */
 }
 
+#if 1
 void url_rewind(URL_FILE *file)
 {
   switch(file->type) {
@@ -444,6 +453,13 @@ void url_rewind(URL_FILE *file)
     break;
   }
 }
+#endif
+
+static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream)
+{
+  size_t written = fwrite(ptr, size, nmemb, (FILE *)stream);
+  return written;
+}
 
 #define FGETSFILE "fgets.test"
 #define FREADFILE "fread.test"
@@ -454,73 +470,132 @@ void url_rewind(URL_FILE *file)
  * they contain 0 chars */
 int main(int argc, char *argv[])
 {
-  URL_FILE *handle;
-  FILE *outf;
+  #if 0
+  //原本的下载方式
+      URL_FILE *handle;
+      FILE *outf;
 
-  size_t nread;
-  char buffer[1024];
-  const char *url;
+      size_t nread;
+      char buffer[1024];
+      const char *url;
 
-  if(argc < 2)
-    url = "https://d11.baidupcs.com/file/2da24dab08cda4c98eda7ae68d972273?bkt=p3-14002da24dab08cda4c98eda7ae68d97227377149e02000000234b23&xcode=b2efde102a88661b1d66b80c38b9c3982986076065990b892013817e2489f6de88b90229e6df1ad080d6011f5b7b51c39a7e3ac4ae9d7ad8&fid=557564212-250528-339070373375012&time=1536714324&sign=FDTAXGERLQBHSK-DCb740ccc5511e5e8fedcff06b081203-NkT6HY78EVZBLhs9t8Lf%2FuD2bts%3D&to=d11&size=2312995&sta_dx=2312995&sta_cs=429&sta_ft=pdf&sta_ct=7&sta_mt=4&fm2=MH%2CYangquan%2CAnywhere%2C%2Cguangdong%2Cct&resv0=cdnback&resv1=0&vuk=557564212&iv=0&htype=&newver=1&newfm=1&secfm=1&flow_ver=3&pkey=14002da24dab08cda4c98eda7ae68d97227377149e02000000234b23&sl=76480590&expires=8h&rt=sh&r=554311876&mlogid=5899761352382018571&vbdid=2678328550&fin=Makefile%E7%BC%96%E7%A8%8B.pdf&fn=Makefile%E7%BC%96%E7%A8%8B.pdf&rtype=1&dp-logid=5899761352382018571&dp-callid=0.1.1&hps=1&tsl=80&csl=80&csign=gK8PVmsTwsBYTJzeE6BWLbZWL60%3D&so=0&ut=6&uter=4&serv=0&uc=3983459049&ti=86348c5ac45f19b1b8f59e0994118f75348ff785cd87e666&by=themis";/* default to testurl */
-  else
-    url = argv[1];/* use passed url */
+      if(argc < 2)
+        url = "https://qdcu01.baidupcs.com/file/96bb1f5e83aa621948f7d7f3b0ff8cf7?bkt=p3-140096bb1f5e83aa621948f7d7f3b0ff8cf7e210d6240000000001e8&fid=557564212-250528-965041864654337&time=1541469383&sign=FDTAXGERLQBHSKW-DCb740ccc5511e5e8fedcff06b081203-dkJWsB1QNsIN5Xs%2BExc8Q97UOIw%3D&to=65&size=488&sta_dx=488&sta_cs=4&sta_ft=txt&sta_ct=0&sta_mt=0&fm2=MH%2CQingdao%2CAnywhere%2C%2Cguangdong%2Cct&ctime=1541399159&mtime=1541399159&resv0=cdnback&resv1=0&vuk=557564212&iv=0&htype=&newver=1&newfm=1&secfm=1&flow_ver=3&pkey=140096bb1f5e83aa621948f7d7f3b0ff8cf7e210d6240000000001e8&sl=76480590&expires=8h&rt=sh&r=273911430&mlogid=7176187698743905372&vbdid=2678328550&fin=test_update.txt&fn=test_update.txt&rtype=1&dp-logid=7176187698743905372&dp-callid=0.1.1&hps=1&tsl=80&csl=80&csign=gK8PVmsTwsBYTJzeE6BWLbZWL60%3D&so=0&ut=6&uter=4&serv=0&uc=1694538685&ti=37cfb58296b21ea911bfb63a3d12cc3500bedcc7d5a1e95c&by=themis";/* default to testurl */
+      else
+        url = argv[1];/* use passed url */
 
-#if 1
-  /* copy from url line by line with fgets */
-  outf = fopen(FGETSFILE, "wb+");
-  if(!outf) {
-    perror("couldn't open fgets output file\n");
-    return 1;
-  }
+    #if 1
+      /* copy from url line by line with fgets */
+      outf = fopen(FGETSFILE, "wb+");
+      if(!outf) {
+        perror("couldn't open fgets output file\n");
+        return 1;
+      }
 
-  handle = url_fopen(url, "r");
-  if(!handle) {
-    printf("couldn't url_fopen() %s\n", url);
-    fclose(outf);
-    return 2;
-  }
+      handle = url_fopen(url, "r");
+      if(!handle) {
+        printf("couldn't url_fopen() %s\n", url);
+        fclose(outf);
+        return 2;
+      }
 
-  while(!url_feof(handle)) {
-    #if 0  //the fgets method will corrupt binary files if* they contain 0 chars
-    url_fgets(buffer, sizeof(buffer), handle);
-    fwrite(buffer, 1, strlen(buffer), outf);
+      while(!url_feof(handle)) {
+        #if 0  //the fgets method will corrupt binary files if* they contain 0 chars
+        url_fgets(buffer, sizeof(buffer), handle);
+        fwrite(buffer, 1, strlen(buffer), outf);
+        #else
+        nread = url_fread(buffer, 1, sizeof(buffer), handle);
+        fwrite(buffer, 1, nread, outf);
+        #endif
+      }
+
+      url_fclose(handle);
+
+      fclose(outf);
+
     #else
-    nread = url_fread(buffer, 1, sizeof(buffer), handle);
-    fwrite(buffer, 1, nread, outf);
+      /* Copy from url with fread */
+      outf = fopen(FREADFILE, "wb+");
+      if(!outf) {
+        perror("couldn't open fread output file\n");
+        return 1;
+      }
+
+      handle = url_fopen("testfile", "r");
+      if(!handle) {
+        printf("couldn't url_fopen() testfile\n");
+        fclose(outf);
+        return 2;
+      }
+
+      do {
+        nread = url_fread(buffer, 1, sizeof(buffer), handle);
+        fwrite(buffer, 1, nread, outf);
+      } while(nread);
+
+      url_fclose(handle);
+
+      fclose(outf);
     #endif
-  }
 
-  url_fclose(handle);
+  #else //新的下载方式
+      CURL *curl_handle;
+      const char *url;
+      static const char *pagefilename = "./page.out";
+      FILE *pagefile;
 
-  fclose(outf);
+      if(argc < 2) 
+      {
+        printf("please input <URL>\n");
+        url = "http://www.baidu.com/index.html";
+        //url = "https://qdcu01.baidupcs.com/file/96bb1f5e83aa621948f7d7f3b0ff8cf7?bkt=p3-140096bb1f5e83aa621948f7d7f3b0ff8cf7e210d6240000000001e8&fid=557564212-250528-965041864654337&time=1541644892&sign=FDTAXGERLQBHSKW-DCb740ccc5511e5e8fedcff06b081203-ffsWPJRwI8SLYcKH7xEFeIzHgCc%3D&to=65&size=488&sta_dx=488&sta_cs=7&sta_ft=txt&sta_ct=1&sta_mt=1&fm2=MH%2CQingdao%2CAnywhere%2C%2Cguangdong%2Cct&ctime=1541399159&mtime=1541399159&resv0=cdnback&resv1=0&vuk=557564212&iv=0&htype=&newver=1&newfm=1&secfm=1&flow_ver=3&pkey=140096bb1f5e83aa621948f7d7f3b0ff8cf7e210d6240000000001e8&sl=76480590&expires=8h&rt=sh&r=525310594&mlogid=7223300540478406269&vbdid=2678328550&fin=test_update.txt&fn=test_update.txt&rtype=1&dp-logid=7223300540478406269&dp-callid=0.1.1&hps=1&tsl=80&csl=80&csign=gK8PVmsTwsBYTJzeE6BWLbZWL60%3D&so=0&ut=6&uter=4&serv=0&uc=1694538685&ti=37cfb58296b21ea93ad4268cf83c67e37646cebefeffe855&by=themis";
+      }
+      else
+      {
 
-#else
-  /* Copy from url with fread */
-  outf = fopen(FREADFILE, "wb+");
-  if(!outf) {
-    perror("couldn't open fread output file\n");
-    return 1;
-  }
+        url = argv[1];        
+      }
 
-  handle = url_fopen("testfile", "r");
-  if(!handle) {
-    printf("couldn't url_fopen() testfile\n");
-    fclose(outf);
-    return 2;
-  }
+      printf("argv[1] = %s\n",argv[1]);
+      
+      curl_global_init(CURL_GLOBAL_ALL);
 
-  do {
-    nread = url_fread(buffer, 1, sizeof(buffer), handle);
-    fwrite(buffer, 1, nread, outf);
-  } while(nread);
+      /* init the curl session */
+      curl_handle = curl_easy_init();
 
-  url_fclose(handle);
+      /* set URL to get here */
+      curl_easy_setopt(curl_handle, CURLOPT_URL, url);
 
-  fclose(outf);
-#endif
+      /* Switch on full protocol/debug output while testing */
+      curl_easy_setopt(curl_handle, CURLOPT_VERBOSE, 1L);
 
-  
+      /* disable progress meter, set to 0L to enable and disable debug output */
+      curl_easy_setopt(curl_handle, CURLOPT_NOPROGRESS, 1L);
+
+      /* send all data to this function  */
+      curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_data);
+
+      /* open the file */
+      pagefile = fopen(pagefilename, "wb");
+      if(pagefile) {
+
+        /* write the page body to this file handle */
+        curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, pagefile);
+
+        /* get it! */
+        curl_easy_perform(curl_handle);
+
+        /* close the header file */
+        fclose(pagefile);
+      }
+
+      /* cleanup curl stuff */
+      curl_easy_cleanup(curl_handle);
+
+      curl_global_cleanup();
+
+
+  #endif
 
   return 0;/* all done */
 }
